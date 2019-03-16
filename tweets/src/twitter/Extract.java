@@ -3,6 +3,7 @@
  */
 package twitter;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +25,8 @@ public class Extract {
      *         every tweet in the list.
      */
     public static Timespan getTimespan(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+       Timespan span = new Timespan(tweets.get(tweets.size()-1).getTimestamp(),tweets.get(0).getTimestamp());
+       return span;
     }
 
     /**
@@ -43,7 +45,31 @@ public class Extract {
      *         include a username at most once.
      */
     public static Set<String> getMentionedUsers(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        Set<String> mentionedUsers = new HashSet<String>();
+        
+        for(int i=0; i<tweets.size(); i++){
+        	
+        String text = tweets.get(i).getText();
+        
+        String[] values = text.split(" ");
+        
+        for(int y=0; y<values.length; y++){
+        
+        if(values[y].contains("@")){
+        	if(values[y].indexOf('@')==0){
+        		 if(values[y].matches(".*([a-zA-Z].*[0-9]|[0-9].*[a-zA-Z]).*")){
+        		mentionedUsers.add(values[y]);
+        		 }
+        	}
+        	
+        }
+        }
+        }
+        
+        System.out.println(mentionedUsers);
+        
+        return mentionedUsers;
+        
     }
 
 }

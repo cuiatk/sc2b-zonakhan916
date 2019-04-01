@@ -50,11 +50,6 @@ public class FilterTest {
         assertTrue("expected list to contain tweet", writtenBy.contains(tweet1));
     }
 
-    @Test
-    public void testWrittenByEmptyTweets() {
-        List<Tweet> writtenBy = Filter.writtenBy(new ArrayList<Tweet>(), "rachit");
-        assertTrue(writtenBy.isEmpty());
-    }
     
     @Test
     public void testWrittenByDifferentCase(){
@@ -82,8 +77,7 @@ public class FilterTest {
 
         List<Tweet> inTimespan = Filter.inTimespan(new ArrayList<Tweet>(), new Timespan(testStart, testEnd));
 
-        assertTrue("expected no tweets", inTimespan.containsAll(Arrays.asList(tweet1, tweet2)));
-        assertEquals("expected sgame order", 0, inTimespan.indexOf(tweet1));
+        assertEquals("expected empty", 0, inTimespan.size());
     }
 
     

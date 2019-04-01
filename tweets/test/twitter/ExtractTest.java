@@ -5,10 +5,12 @@ package twitter;
 
 import static org.junit.Assert.*;
 
+import java.awt.List;
+import java.io.OptionalDataException;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.OptionalLong;
 import java.util.Set;
 
 import org.junit.Test;
@@ -17,94 +19,102 @@ public class ExtractTest {
 
     /*
      * TODO: your testing strategies for these methods should go here.
+     * 
+     * testing strategy for getTimespan and getMentionedUsers
+     * 
+     * partition space for getTimeSpan
+     * check if the list is empty if not empty then,
+     * check if instant d1 is the starting point
+     * check if instant d3 is the ending point
+     * 
+     * partition for getMentionedUsers
+     * check if tweet list is empty if not empty then,
+     * check if tweets are null
+     * check if tweet has mention once
+     * check if any tweet has mentions twice
+     * 
      * See the ic03-testing exercise for examples of what a testing strategy comment looks like.
      * Make sure you have partitions.
      */
     
     private static final Instant d1 = Instant.parse("2016-02-17T10:00:00Z");
     private static final Instant d2 = Instant.parse("2016-02-17T11:00:00Z");
-    private static final Instant d3 = Instant.parse("2016-02-17T11:25:00Z");
-    private static final Instant d4 = Instant.parse("2016-02-17T11:45:00Z");
-    private static final Instant d5 = Instant.parse("2016-02-17T11:47:00Z");
-    private static final Instant d6 = Instant.parse("2016-02-17T10:47:00Z");
+    private static final Instant d3 = Instant.parse("2016-02-17T12:00:00Z");
     
     private static final Tweet tweet1 = new Tweet(1, "alyssa", "is it reasonable to talk about rivest so much?", d1);
-    private static final Tweet tweet2 = new Tweet(2, "bbitdiddle", "rivest talk in 30 minutes #hype", d2);
-    private static final Tweet tweet3 = new Tweet(3, "randomuser", "can we please pass this test??", d3);
-    private static final Tweet tweet4 = new Tweet(4, "randomuser", "@test1 is this another one of these stupid tests?",d4);
-    private static final Tweet tweet5 = new Tweet(5, "randomuser2", "@test1 @test2 can't believe I'm doing another",d5);
-    private static final Tweet tweet6 = new Tweet(6, "randomuser2", "@test1 @test1 can't believe I'm doing another",d6);
+    private static final Tweet tweet2 = new Tweet(2, "bbitdiddle", "@rivest talk in 30 minutes #hype", d2);
+    private static final Tweet tweet3 = new Tweet(3, "yassGirl", "to be or not to be. @byeBoss @yoloGirl", d3);
+    
+    
     
     @Test(expected=AssertionError.class)
     public void testAssertionsEnabled() {
         assert false; // make sure assertions are enabled with VM argument: -ea
     }
-    @Test
-    public void testGetTimespanThreeTweets1() {
-        Timespan timespan = Extract.getTimespan(Arrays.asList(tweet1, tweet2, tweet3));
-        
-        assertEquals(d1, timespan.getStart());
-        assertEquals(d3, timespan.getEnd());
-    }
+    
+    /*
+     * checking if list is empty, and also asserting instants time
+     */
     
     @Test
-    public void testGetTimespanTwoTweets1() {
-        Timespan timespan = Extract.getTimespan(Arrays.asList(tweet1, tweet2));
+    public void testGetTimespanTwoTweets() {
+        Timespan timespan = Extract.getTimespan(Arrays.asList(tweet1,tweet2,tweet3));
         
-        assertEquals(d1, timespan.getStart());
-        assertEquals(d2, timespan.getEnd());
-    }
-    //This test should give the same start and end for the single tweet
-    @Test
-    public void testGetTimespanOneTweet() {
-        Timespan timespan = Extract.getTimespan(Arrays.asList(tweet1));
-        assertEquals(d1, timespan.getStart());
-        assertEquals(d1, timespan.getEnd());        
+        assertEquals("expected start", d1, timespan.getStart());
+        assertEquals("expected end", d3, timespan.getEnd());
+        
+        assertFalse("not expected empty tweets list",Arrays.asList(timespan).isEmpty());
+       
+        assertEquals("tweet 1 id is null", tweet1.getId(), tweet1.getId());
+        assertEquals("tweet 2 id is null", tweet2.getId(), tweet2.getId());
+        
+
+       // assertEquals("instant d1 is not equal ", d1, timespan.getStart().is);
+        //assertEquals("instant d2 is not equal ", d2, timespan.getStart().toString()=="");
+        assertNotNull("instance 2 is null", d2);
     }
     
-    @Test
-    public void testGetTimespanEmptyTweet() {
-        Timespan timespan = Extract.getTimespan(new ArrayList<Tweet>());
-        assertEquals(timespan.getEnd(), timespan.getStart());         
-    }
+    /*
+     * checking if list is empty
+     */
     
     @Test
     public void testGetMentionedUsersNoMention() {
-        Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet1));
+        Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet1,tweet2,tweet3));
         
-        assertTrue("expected empty set", mentionedUsers.isEmpty());
+        assertFalse("expected empty set", mentionedUsers.isEmpty());
+        
+        assertNotNull("tweet 1 is null", tweet1);
+        assertNotNull("tweet 2 is null", tweet2);
+        
     }
     
+    /*
+     * checking if tweet has one mention
+     */
     @Test
-    public void testGetMentionedUsersOneMentionOneTweet() {         
-        Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet4));
+    public void testGetMentionedUsersOneMentionTweet() {         
+        Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet2));
         Set<String> mentionedUsersLowerCase = new HashSet<>();
         for (String mentionedUser : mentionedUsers) {
             mentionedUsersLowerCase.add(mentionedUser.toLowerCase());
         }
-        assertTrue(mentionedUsersLowerCase.contains("test1"));
+        assertTrue(mentionedUsersLowerCase.contains("rivest"));
     }
     
-    public void testGetMentionedUsersTwoeMentionOneTweet() {         
-        Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet5));
+    /*
+     * checking if tweet has two mentions
+     */
+    @Test
+    public void testGetMentionedUsersTwoMentionTweet() {         
+        Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet3));
         Set<String> mentionedUsersLowerCase = new HashSet<>();
         for (String mentionedUser : mentionedUsers) {
             mentionedUsersLowerCase.add(mentionedUser.toLowerCase());
         }
-        assertTrue(mentionedUsersLowerCase.containsAll(Arrays.asList("test1", "test2")));
-    }
+        assertTrue(mentionedUsersLowerCase.containsAll(Arrays.asList("byeboss", "yologirl")));
     
-    public void testGetMentionedUsersTwoeMentionOneTweetrepeateduser() {         
-        Set<String> mentionedUsers = Extract.getMentionedUsers(Arrays.asList(tweet6));
-        Set<String> mentionedUsersLowerCase = new HashSet<>();
-        for (String mentionedUser : mentionedUsers) {
-            mentionedUsersLowerCase.add(mentionedUser.toLowerCase());
-        }
-        assertTrue(mentionedUsersLowerCase.contains("test1"));
     }
-        
-    }
-
     /*
      * Warning: all the tests you write here must be runnable against any
      * Extract class that follows the spec. It will be run against several staff
@@ -119,4 +129,4 @@ public class ExtractTest {
      * keep them in this test class.
      */
 
-
+}
